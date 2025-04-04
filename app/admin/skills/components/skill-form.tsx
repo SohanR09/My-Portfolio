@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { getSupabaseClient } from "@/lib/supabase/client"
 import { Loader2 } from "lucide-react"
-import { getIconByName } from "@/utils/icon-utils"
+import { getIconByName, getIconName } from "@/utils/icon-utils"
 import type { Skill } from "@/lib/services/skills"
 
 interface SkillFormProps {
@@ -118,7 +118,7 @@ export function SkillForm({ skill, onClose }: SkillFormProps) {
               className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-gray-100"
               required
             >
-              {iconOptions.map((icon) => (
+              {getIconName()?.map((icon: string) => (
                 <option key={icon} value={icon}>
                   {icon}
                 </option>

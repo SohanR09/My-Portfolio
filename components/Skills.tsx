@@ -365,6 +365,7 @@ function getSkillIconColor(skillName: string): string {
     Ruby: "text-[#CC342D] dark:text-[#CC342D]",
     Swift: "text-[#FA7343] dark:text-[#FA7343]",
     Kotlin: "text-[#7F52FF] dark:text-[#7F52FF]",
+    Supabase: "text-[#3065F8] dark:text-[#3065F8]",
   }
 
   return colorMap[skillName] || "text-blue-500 dark:text-blue-400"

@@ -10,7 +10,7 @@ import {
   FaGithub,
   FaCode,
 } from "react-icons/fa"
-import { SiTypescript, SiMongodb, SiPostgresql, SiKubernetes } from "react-icons/si"
+import { SiTypescript, SiMongodb, SiPostgresql, SiKubernetes, SiNextdotjs, SiTailwindcss, SiNestjs, SiExpress, SiNodedotjs, SiSupabase, SiGithub, SiGit, SiFigma } from "react-icons/si"
 import type { IconType } from "react-icons"
 
 export function getIconByName(iconName: string): IconType | null {
@@ -29,6 +29,15 @@ export function getIconByName(iconName: string): IconType | null {
     SiMongodb: SiMongodb,
     SiPostgresql: SiPostgresql,
     SiKubernetes: SiKubernetes,
+    SiNextjs: SiNextdotjs,
+    SiTailwindcss: SiTailwindcss,
+    SiExpress: SiExpress,
+    SiNestjs: SiNestjs,
+    SiNodedotjs: SiNodedotjs,
+    SiSupabase: SiSupabase,
+    SiFigma: SiFigma,
+    SiGit: SiGit,
+    SiGithub: SiGithub
   }
 
   return iconMap[iconName] || null

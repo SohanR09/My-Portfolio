@@ -27,7 +27,7 @@ export default function SkillsAdmin() {
     if (error) {
       console.error("Error fetching skills:", error)
     } else {
-      setSkills(data || [])
+      setSkills(data as Skill[] || [])
     }
     setIsLoading(false)
   }

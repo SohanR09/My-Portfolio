@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs"
+import { getSupabaseClient } from "./lib/supabase/client"
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
-  const supabase = createMiddlewareClient({ req: request, res: response })
+  const supabase = getSupabaseClient()
 
   const {
     data: { session },
@@ -17,13 +18,13 @@ export async function middleware(request: NextRequest) {
   // If trying to access admin routes without being logged in
   if (isAdminRoute && !isLoginPage && !session) {
     const redirectUrl = new URL("/admin/login", request.url)
-    return NextResponse.redirect(redirectUrl)
+    // return NextResponse.redirect(redirectUrl)
   }
 
   // If already logged in and trying to access login page
   if (isLoginPage && session) {
     const redirectUrl = new URL("/admin", request.url)
-    return NextResponse.redirect(redirectUrl)
+    // return NextResponse.redirect(redirectUrl)
   }
 
   return response

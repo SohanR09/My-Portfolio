@@ -63,7 +63,7 @@ export default function LoginPage() {
       setTimeout(() => {
         // Use window.location for a full page reload to ensure the session is properly recognized
         window.location.href = `${window.location.origin}/admin`
-      }, 1000)
+      }, 500)
     } catch (err: any) {
       setError(err.message || "Failed to sign in")
     } finally {

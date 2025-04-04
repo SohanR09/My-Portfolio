@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth/auth-context"
+import { getSession } from "@/lib/getSission"
 
 interface UseSessionOptions {
   redirectTo?: string
@@ -11,10 +12,20 @@ interface UseSessionOptions {
 
 export function useSession(options: UseSessionOptions = {}) {
   const { redirectTo = "/admin/login", redirectIfFound = false } = options
-  const { user, isLoading } = useAuth()
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [isSessionValid, setIsSessionValid] = useState<boolean | null>(null)
   const [isSessionChecked, setIsSessionChecked] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+   const fetchSession = async () => {
+    const { session, user: userSession } = await getSession()
+    setUser(userSession)
+    setIsLoading(false)
+   }
+   fetchSession()
+  }, [])
 
   useEffect(() => {
     // Skip if still loading or if we've already checked the session

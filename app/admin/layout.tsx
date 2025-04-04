@@ -1,20 +1,42 @@
 "use client"
 
-import { type ReactNode, useEffect, useState } from "react"
-import Link from "next/link"
-import { useRouter, usePathname } from "next/navigation"
 import { DarkModeToggle } from "@/components/DarkModeToggle"
-import { useAuth } from "@/lib/auth/auth-context"
 import { Button } from "@/components/ui/button"
-import { LogOut, Home, Code, Briefcase, GraduationCap, FileText, User, BookOpen, Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useSession } from "@/hooks/use-session"
-
+import { getSession, signOutClient } from "@/lib/getSission"
+import { BookOpen, Briefcase, Code, FileText, GraduationCap, Home, LogOut, Menu, User } from "lucide-react"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { type ReactNode, useEffect, useState } from "react"
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  const { user, isLoading, signOut } = useAuth()
+  
   const router = useRouter()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const [user, setUser] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const signOut = async () => {
+    await signOutClient()
+    setUser(null)
+    setIsLoading(false)
+    router.push("/admin/login")
+    setTimeout(() => {
+      window.location.reload()
+    }, 500)
+  }
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      setIsLoading(true)
+      const { session, user: userSession } = await getSession()
+      setUser(userSession)
+      setIsLoading(false)
+    }
+    fetchSession()
+  }, [])
 
   useEffect(() => {
     if (!isLoading && !user && pathname !== "/admin/login") {

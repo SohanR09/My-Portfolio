@@ -10,7 +10,7 @@ import {
   FaGithub,
   FaCode,
 } from "react-icons/fa"
-import { SiTypescript, SiMongodb, SiPostgresql, SiKubernetes, SiNextdotjs, SiTailwindcss, SiNestjs, SiExpress, SiNodedotjs, SiSupabase, SiGithub, SiGit, SiFigma } from "react-icons/si"
+import { SiTypescript, SiMongodb, SiPostgresql, SiKubernetes, SiNextdotjs, SiTailwindcss, SiNestjs, SiExpress, SiNodedotjs, SiSupabase, SiGithub, SiGit, SiFigma, SiFirebase, SiDocker, SiGooglecloud, SiDigitalocean, SiHtml5, SiCss3, SiJavascript, SiPython, SiRuby, SiSwift, SiKotlin, SiAuth0, SiStripe, SiWordpress, SiGraphql, SiRedux, SiSass, SiSvelte } from "react-icons/si"
 import type { IconType } from "react-icons"
 
 const iconMap: Record<string, IconType> = {
@@ -36,7 +36,25 @@ const iconMap: Record<string, IconType> = {
   SiSupabase: SiSupabase,
   SiFigma: SiFigma,
   SiGit: SiGit,
-  SiGithub: SiGithub
+  SiGithub: SiGithub,
+  SiFirebase: SiFirebase,
+  SiDocker: SiDocker,
+  SiGooglecloud: SiGooglecloud,
+  SiDigitalocean: SiDigitalocean,
+  SiHtml5: SiHtml5,
+  SiCss3: SiCss3,
+  SiJavascript: SiJavascript,
+  SiPython: SiPython,
+  SiRuby: SiRuby,
+  SiSwift: SiSwift,
+  SiKotlin: SiKotlin,
+  SiAuth0: SiAuth0,
+  SiStripe: SiStripe,
+  SiWordpress: SiWordpress,
+  SiGraphql: SiGraphql,
+  SiRedux: SiRedux,
+  SiSass: SiSass,
+  SiSvelte: SiSvelte,
 }
 
 export function getIconName() {

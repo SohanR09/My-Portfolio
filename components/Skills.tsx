@@ -75,6 +75,7 @@ import {
   SiHeroku,
   SiDigitalocean,
   SiGooglecloud,
+  SiSupabase,
  // SiMicrosoftazure,
   //SiAmazonaws,
 } from "react-icons/si"
@@ -299,6 +300,7 @@ function getSkillIcon(skillName: string, iconName: string): IconType {
     Stripe: SiStripe,
     Auth0: SiAuth0,
     WordPress: FaWordpress,
+    "Supabase": SiSupabase
   }
 
   // First try to match by skill name (case insensitive)

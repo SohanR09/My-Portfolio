@@ -1,25 +1,25 @@
 "use client";
 
-import { useState, useEffect, Children } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { SectionContainer } from "@/components/ui/section-container";
 import { SectionTitle } from "@/components/ui/section-title";
 import { SECTION_TITLES } from "@/constants";
-import { Code, ExternalLink, Github } from "lucide-react";
-import { getSkillIcon } from "@/utils/text-utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import MarkdownPreview from "@uiw/react-markdown-preview";
+import { getSkillIcon } from "@/utils/text-utils";
+import { motion } from "framer-motion";
+import { Code, ExternalLink, Github } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import MarkDownEditor from "./MarkDownEditor";
 
 type Project = {
   id: string;
@@ -203,19 +203,50 @@ export default function Projects() {
                 </div>
               </div>
               <div className="p-6 flex-grow">
-                <div className="border-white border-b">
-                  <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
-                    {project.name}
-                  </h3>
-                </div>
-                <div className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 mt-4">
-                  <MarkdownPreview
-                    source={project.description}
-                    style={{
-                      backgroundColor: "transparent",
-                      fontSize: 12,
+                <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                  {project.name}
+                </h3>
+                <div className="text-gray-900 dark:text-gray-300 mb-4 line-clamp-2 mt-4">
+                  <MarkDownEditor
+                    type="description"
+                    content={project.description}
+                    components={{
+                      h1: () => <></>,
+                      h2: ({ children }: any) => (
+                        <span
+                          style={{ textDecoration: "none", border: "none" }}
+                        >
+                          {children}
+                        </span>
+                      ),
+                      h3: () => <></>,
+                      h4: () => <></>,
+                      h5: () => <></>,
+                      h6: () => <></>,
+                      p: () => <></>,
+                      ul: () => <></>,
+                      ol: () => <></>,
+                      li: () => <></>,
+                      a: () => <></>,
+                      img: () => <></>,
+                      blockquote: () => <></>,
+                      code: () => <></>,
+                      pre: () => <></>,
+                      table: () => <></>,
+                      thead: () => <></>,
+                      tbody: () => <></>,
+                      tr: () => <></>,
+                      th: () => <></>,
+                      td: () => <></>,
+                      hr: () => <></>,
+                      em: () => <></>,
+                      strong: () => <></>,
+                      del: () => <></>,
+                      input: () => <></>,
+                      span: () => <></>,
+                      div: () => <></>,
                     }}
-                  ></MarkdownPreview>
+                  />
                 </div>
               </div>
 
@@ -273,20 +304,21 @@ export default function Projects() {
                   )}
                 </div>
                 <DialogDescription
-                  className="text-base text-gray-700 dark:text-gray-300 my-4"
+                  className="text-base text-black dark:text-gray-300 my-4"
                   asChild
                 >
-                  <MarkdownPreview
-                    source={selectedProject.description}
-                    style={{
-                      backgroundColor: "transparent",
-                      fontFamily: `'Inter', sans-serif`,
-                      fontSize: 16,
-                      lineHeight: 1.75,
-                      color: "#fff",
-                    }}
+                  <MarkDownEditor
+                    type="dialog"
+                    content={selectedProject.description}
                     components={{
-                      h1: ({ children }: any) => <h1>{children}</h1>,
+                      h1: ({ children }: any) => {
+                        let h2Text = "";
+                        if (children?.length > 0) {
+                          h2Text = children?.[1];
+                          return <h1>{h2Text}</h1>;
+                        }
+                        return <h1>{children}</h1>;
+                      },
                       h2: ({ children }: any) => {
                         let h2Text = "";
                         if (children?.length > 0) {
@@ -295,13 +327,41 @@ export default function Projects() {
                         }
                         return <h2>{children}</h2>;
                       },
-                      h3: ({ children }: any) => <h3>{children}</h3>,
-                      h4: ({ children }: any) => <h4>{children}</h4>,
-                      h5: ({ children }: any) => <h5>{children}</h5>,
-                      h6: ({ children }: any) => <h6>{children}</h6>,
+                      h3: ({ children }: any) => {
+                        let h2Text = "";
+                        if (children?.length > 0) {
+                          h2Text = children?.[1];
+                          return <h3>{h2Text}</h3>;
+                        }
+                        return <h3>{children}</h3>;
+                      },
+                      h4: ({ children }: any) => {
+                        let h2Text = "";
+                        if (children?.length > 0) {
+                          h2Text = children?.[1];
+                          return <h4>{h2Text}</h4>;
+                        }
+                        return <h4>{children}</h4>;
+                      },
+                      h5: ({ children }: any) => {
+                        let h2Text = "";
+                        if (children?.length > 0) {
+                          h2Text = children?.[1];
+                          return <h5>{h2Text}</h5>;
+                        }
+                        return <h5>{children}</h5>;
+                      },
+                      h6: ({ children }: any) => {
+                        let h2Text = "";
+                        if (children?.length > 0) {
+                          h2Text = children?.[1];
+                          return <h6>{h2Text}</h6>;
+                        }
+                        return <h6>{children}</h6>;
+                      },
                       a: ({ children }: any) => <span>{children}</span>,
                     }}
-                  ></MarkdownPreview>
+                  />
                 </DialogDescription>
 
                 {/* Updated skills display in dialog */}

@@ -1,76 +1,90 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { SectionContainer } from "@/components/ui/section-container"
-import { SectionTitle } from "@/components/ui/section-title"
-import { SECTION_TITLES } from "@/constants"
-import { Code, ExternalLink, Github } from "lucide-react"
-import { getSkillIcon } from "@/utils/text-utils"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useState, useEffect, Children } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { SectionContainer } from "@/components/ui/section-container";
+import { SectionTitle } from "@/components/ui/section-title";
+import { SECTION_TITLES } from "@/constants";
+import { Code, ExternalLink, Github } from "lucide-react";
+import { getSkillIcon } from "@/utils/text-utils";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 type Project = {
-  id: string
-  name: string
-  description: string
-  image: string | null
-  skills: string[]
-  github: string | null
-  live: string | null
-}
+  id: string;
+  name: string;
+  description: string;
+  image: string | null;
+  skills: string[];
+  github: string | null;
+  live: string | null;
+};
 
 /**
  * Projects section component that displays recent projects
  * with images, descriptions, and skills used.
  */
 export default function Projects() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [projects, setProjects] = useState<Project[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const supabase = getSupabaseClient()
+        const supabase = getSupabaseClient();
         const { data, error } = await supabase
           .from("projects")
           .select("*")
           .order("sequence", { ascending: true })
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: false });
 
         if (error) {
-          console.error("Error fetching projects:", error)
-          setError("Unable to load projects at this time")
-          setProjects([])
+          console.error("Error fetching projects:", error);
+          setError("Unable to load projects at this time");
+          setProjects([]);
         } else {
-          setProjects(data || [])
-          setError(null)
+          setProjects(data as any);
+          setError(null);
         }
       } catch (err) {
-        console.error("Failed to fetch projects:", err)
-        setError("Unable to load projects at this time")
-        setProjects([])
+        console.error("Failed to fetch projects:", err);
+        setError("Unable to load projects at this time");
+        setProjects([]);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchProjects()
-  }, [])
+    fetchProjects();
+  }, []);
 
   if (isLoading) {
     return (
-      <SectionContainer id="projects" background="dark" className="relative overflow-hidden">
+      <SectionContainer
+        id="projects"
+        background="dark"
+        className="relative overflow-hidden"
+      >
         <SectionTitle title={SECTION_TITLES.projects} light />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(6)].map((_, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse">
+            <div
+              key={index}
+              className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden animate-pulse"
+            >
               <div className="h-48 bg-gray-300 dark:bg-gray-700"></div>
               <div className="p-6">
                 <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
@@ -79,7 +93,10 @@ export default function Projects() {
                 <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
                 <div className="flex flex-wrap gap-2 mt-4">
                   {[...Array(3)].map((_, skillIndex) => (
-                    <div key={skillIndex} className="h-8 bg-gray-300 dark:bg-gray-700 rounded-full w-16"></div>
+                    <div
+                      key={skillIndex}
+                      className="h-8 bg-gray-300 dark:bg-gray-700 rounded-full w-16"
+                    ></div>
                   ))}
                 </div>
               </div>
@@ -87,25 +104,34 @@ export default function Projects() {
           ))}
         </div>
       </SectionContainer>
-    )
+    );
   }
 
   // If no projects are found, show a fallback message
   if (projects.length === 0) {
     return (
-      <SectionContainer id="projects" background="dark" className="relative overflow-hidden">
+      <SectionContainer
+        id="projects"
+        background="dark"
+        className="relative overflow-hidden"
+      >
         <SectionTitle title={SECTION_TITLES.projects} light />
         <div className="text-center py-12">
           <p className="text-gray-400">
-            {error || "Project information will be available soon. Please check back later."}
+            {error ||
+              "Project information will be available soon. Please check back later."}
           </p>
         </div>
       </SectionContainer>
-    )
+    );
   }
 
   return (
-    <SectionContainer id="projects" background="dark" className="relative overflow-hidden">
+    <SectionContainer
+      id="projects"
+      background="dark"
+      className="relative overflow-hidden"
+    >
       {/* Particle effect background */}
       <div className="absolute inset-0">
         {[...Array(50)].map((_, i) => (
@@ -177,8 +203,20 @@ export default function Projects() {
                 </div>
               </div>
               <div className="p-6 flex-grow">
-                <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{project.name}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">{project.description}</p>
+                <div className="border-white border-b">
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                    {project.name}
+                  </h3>
+                </div>
+                <div className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-2 mt-4">
+                  <MarkdownPreview
+                    source={project.description}
+                    style={{
+                      backgroundColor: "transparent",
+                      fontSize: 12,
+                    }}
+                  ></MarkdownPreview>
+                </div>
               </div>
 
               {/* Skills footer - now aligned at the bottom */}
@@ -194,7 +232,9 @@ export default function Projects() {
                   ))}
                   {project.skills.length > 4 && (
                     <div className="flex items-center bg-gray-200 dark:bg-gray-600 rounded-full px-3 py-1">
-                      <span className="text-xs text-gray-800 dark:text-gray-200">+{project.skills.length - 4}</span>
+                      <span className="text-xs text-gray-800 dark:text-gray-200">
+                        +{project.skills.length - 4}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -205,12 +245,17 @@ export default function Projects() {
       </div>
 
       {/* Project details dialog - improved for mobile */}
-      <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+      <Dialog
+        open={!!selectedProject}
+        onOpenChange={() => setSelectedProject(null)}
+      >
         <DialogContent className="max-w-3xl w-[95vw] max-h-[90vh] overflow-y-auto">
           {selectedProject && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-xl sm:text-2xl">{selectedProject.name}</DialogTitle>
+                <DialogTitle className="text-xl sm:text-2xl">
+                  {selectedProject.name}
+                </DialogTitle>
               </DialogHeader>
               <div className="mt-4">
                 <div className="relative w-full h-48 sm:h-64 mb-4 rounded-md overflow-hidden">
@@ -227,8 +272,36 @@ export default function Projects() {
                     </div>
                   )}
                 </div>
-                <DialogDescription className="text-base text-gray-700 dark:text-gray-300 my-4">
-                  {selectedProject.description}
+                <DialogDescription
+                  className="text-base text-gray-700 dark:text-gray-300 my-4"
+                  asChild
+                >
+                  <MarkdownPreview
+                    source={selectedProject.description}
+                    style={{
+                      backgroundColor: "transparent",
+                      fontFamily: `'Inter', sans-serif`,
+                      fontSize: 16,
+                      lineHeight: 1.75,
+                      color: "#fff",
+                    }}
+                    components={{
+                      h1: ({ children }: any) => <h1>{children}</h1>,
+                      h2: ({ children }: any) => {
+                        let h2Text = "";
+                        if (children?.length > 0) {
+                          h2Text = children?.[1];
+                          return <h2>{h2Text}</h2>;
+                        }
+                        return <h2>{children}</h2>;
+                      },
+                      h3: ({ children }: any) => <h3>{children}</h3>,
+                      h4: ({ children }: any) => <h4>{children}</h4>,
+                      h5: ({ children }: any) => <h5>{children}</h5>,
+                      h6: ({ children }: any) => <h6>{children}</h6>,
+                      a: ({ children }: any) => <span>{children}</span>,
+                    }}
+                  ></MarkdownPreview>
                 </DialogDescription>
 
                 {/* Updated skills display in dialog */}
@@ -257,7 +330,8 @@ export default function Projects() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-center"
                       >
-                        <Github className="w-4 h-4 mr-2 text-gray-800 dark:text-gray-200" /> GitHub Repository
+                        <Github className="w-4 h-4 mr-2 text-gray-800 dark:text-gray-200" />{" "}
+                        GitHub Repository
                       </Link>
                     </Button>
                   )}
@@ -280,6 +354,5 @@ export default function Projects() {
         </DialogContent>
       </Dialog>
     </SectionContainer>
-  )
+  );
 }
-

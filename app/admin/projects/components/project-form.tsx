@@ -1,30 +1,36 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { X, Plus } from "lucide-react"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { X, Plus } from "lucide-react";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 type Project = {
-  id: string
-  name: string
-  description: string
-  image: string | null
-  skills: string[]
-  github: string | null
-  live: string | null
-}
+  id: string;
+  name: string;
+  description: string;
+  image: string | null;
+  skills: string[];
+  github: string | null;
+  live: string | null;
+};
 
 type ProjectFormProps = {
-  project: Project | null
-  onClose: () => void
-}
+  project: Project | null;
+  onClose: () => void;
+};
 
 export function ProjectForm({ project, onClose }: ProjectFormProps) {
   const [formData, setFormData] = useState<Omit<Project, "id">>({
@@ -34,10 +40,10 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
     skills: [],
     github: "",
     live: "",
-  })
-  const [newSkill, setNewSkill] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  });
+  const [newSkill, setNewSkill] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (project) {
@@ -48,39 +54,41 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
         skills: project.skills,
         github: project.github || "",
         live: project.live || "",
-      })
+      });
     }
-  }, [project])
+  }, [project]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleAddSkill = () => {
     if (newSkill.trim() && !formData.skills.includes(newSkill.trim())) {
       setFormData((prev) => ({
         ...prev,
         skills: [...prev.skills, newSkill.trim()],
-      }))
-      setNewSkill("")
+      }));
+      setNewSkill("");
     }
-  }
+  };
 
   const handleRemoveSkill = (skillToRemove: string) => {
     setFormData((prev) => ({
       ...prev,
       skills: prev.skills.filter((skill) => skill !== skillToRemove),
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-    setError(null)
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
 
     try {
-      const supabase = getSupabaseClient()
+      const supabase = getSupabaseClient();
 
       // Clean up empty strings
       const dataToSubmit = {
@@ -88,42 +96,60 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
         image: formData.image || null,
         github: formData.github || null,
         live: formData.live || null,
-      }
+      };
 
       if (project) {
         // Update existing project
-        const { error } = await supabase.from("projects").update(dataToSubmit).eq("id", project.id)
+        const { error } = await supabase
+          .from("projects")
+          .update(dataToSubmit)
+          .eq("id", project.id);
 
-        if (error) throw error
+        if (error) throw error;
       } else {
         // Create new project
-        const { error } = await supabase.from("projects").insert([dataToSubmit])
+        const { error } = await supabase
+          .from("projects")
+          .insert([dataToSubmit]);
 
-        if (error) throw error
+        if (error) throw error;
       }
 
-      onClose()
+      onClose();
     } catch (err: any) {
-      console.error("Error saving project:", err)
-      setError(err.message || "Failed to save project")
+      console.error("Error saving project:", err);
+      setError(err.message || "Failed to save project");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{project ? "Edit Project" : "Add New Project"}</DialogTitle>
+          <DialogTitle>
+            {project ? "Edit Project" : "Add New Project"}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">{error}</div>}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {error}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="name">Project Name *</Label>
-            <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+            <Input
+              id="name"
+              name="name"
+              placeholder="Enter project name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="space-y-2">
@@ -131,6 +157,7 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
             <Textarea
               id="description"
               name="description"
+              placeholder="Enter markdown format text only"
               value={formData.description}
               onChange={handleChange}
               rows={4}
@@ -158,8 +185,8 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
                 placeholder="Add a skill"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleAddSkill()
+                    e.preventDefault();
+                    handleAddSkill();
                   }
                 }}
               />
@@ -184,7 +211,11 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
                 </div>
               ))}
             </div>
-            {formData.skills.length === 0 && <p className="text-sm text-red-500">At least one skill is required</p>}
+            {formData.skills.length === 0 && (
+              <p className="text-sm text-red-500">
+                At least one skill is required
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -210,16 +241,23 @@ export function ProjectForm({ project, onClose }: ProjectFormProps) {
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || formData.skills.length === 0}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || formData.skills.length === 0}
+            >
               {isSubmitting ? "Saving..." : "Save Project"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

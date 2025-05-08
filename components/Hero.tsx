@@ -192,12 +192,16 @@ export default function Hero() {
               )}
             </h2>
             {isMobile ? (
-              <Link href={resume?.url as string} target="_blank" download>
-                <Button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105">
-                  <FaFilePdf className="text-lg mr-2" />
-                  View Resume
-                </Button>
-              </Link>
+              <>
+                {resume && (
+                  <Link href={resume?.url as string} target="_blank" download>
+                    <Button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105">
+                      <FaFilePdf className="text-lg mr-2" />
+                      View Resume
+                    </Button>
+                  </Link>
+                )}
+              </>
             ) : (
               <Link href={"/view-resume"} download>
                 <Button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105">

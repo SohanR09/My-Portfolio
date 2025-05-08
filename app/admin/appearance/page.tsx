@@ -1,229 +1,318 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isEqual } from "@/utils/text-utils";
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronRight,
+  FileText,
+  FileUser,
   Home,
   ImageIcon,
-  Loader2,
-  Upload,
-  ChevronRight,
-  Type,
-  Save,
   LinkIcon,
+  Loader2,
   Mail,
-} from "lucide-react"
-import Link from "next/link"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { isEqual } from "@/utils/text-utils"
+  Save,
+  Type,
+  Upload,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 interface HeroImage {
-  path: string
-  filename: string
-  url: string
-  size?: number
-  lastUpdated?: string
+  path: string;
+  filename: string;
+  url: string;
+  size?: number;
+  lastUpdated?: string;
 }
 
 interface TextContent {
-  headerName: string
-  heroName: string
-  heroSubtitle: string
-  lastUpdated?: string
+  headerName: string;
+  heroName: string;
+  heroSubtitle: string;
+  lastUpdated?: string;
 }
 
 interface SocialLinks {
-  linkedin: string
-  github: string
-  scholar: string
-  email: string
-  lastUpdated?: string
+  linkedin: string;
+  github: string;
+  scholar: string;
+  email: string;
+  lastUpdated?: string;
+}
+
+interface Resume {
+  path: string;
+  filename: string;
+  url: string;
+  size?: number;
+  lastUpdated?: string;
 }
 
 export default function AppearancePage() {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [currentHeroImage, setCurrentHeroImage] = useState<HeroImage | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedResume, setSelectedResume] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [currentHeroImage, setCurrentHeroImage] = useState<HeroImage | null>(
+    null
+  );
+  const [currentResume, setCurrentResume] = useState<Resume | null>(null);
   const [textContent, setTextContent] = useState<TextContent>({
     headerName: "",
     heroName: "",
     heroSubtitle: "",
-  })
+  });
   const [originalTextContent, setOriginalTextContent] = useState<TextContent>({
     headerName: "",
     heroName: "",
     heroSubtitle: "",
-  })
+  });
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     linkedin: "",
     github: "",
     scholar: "",
     email: "",
-  })
+  });
   const [originalSocialLinks, setOriginalSocialLinks] = useState<SocialLinks>({
     linkedin: "",
     github: "",
     scholar: "",
     email: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
-  const [isSavingText, setIsSavingText] = useState(false)
-  const [isSavingSocial, setIsSavingSocial] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const router = useRouter()
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [isSavingText, setIsSavingText] = useState(false);
+  const [isSavingSocial, setIsSavingSocial] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   // Clear success message after 5 seconds
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout | null = null
+    let timeoutId: NodeJS.Timeout | null = null;
 
     if (success) {
       timeoutId = setTimeout(() => {
-        setSuccess(null)
-      }, 5000)
+        setSuccess(null);
+      }, 5000);
     }
 
     return () => {
       if (timeoutId) {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
       }
-    }
-  }, [success])
+    };
+  }, [success]);
 
-  // Fetch current hero image, text content, and social links on component mount
+  // Fetch current hero image, text content, social links, and resume on component mount
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         // Fetch hero image
-        const imageResponse = await fetch("/api/site-settings/hero-image")
+        const imageResponse = await fetch("/api/site-settings/hero-image");
         if (imageResponse.ok) {
-          const imageData = await imageResponse.json()
-          setCurrentHeroImage(imageData)
+          const imageData = await imageResponse.json();
+          setCurrentHeroImage(imageData);
         }
 
         // Fetch text content
-        const textResponse = await fetch("/api/site-settings/text-content")
+        const textResponse = await fetch("/api/site-settings/text-content");
         if (textResponse.ok) {
-          const textData = await textResponse.json()
-          setTextContent(textData)
-          setOriginalTextContent(textData)
+          const textData = await textResponse.json();
+          setTextContent(textData);
+          setOriginalTextContent(textData);
         }
 
         // Fetch social links
-        const socialResponse = await fetch("/api/site-settings/social-links")
+        const socialResponse = await fetch("/api/site-settings/social-links");
         if (socialResponse.ok) {
-          const socialData = await socialResponse.json()
-          setSocialLinks(socialData)
-          setOriginalSocialLinks(socialData)
+          const socialData = await socialResponse.json();
+          setSocialLinks(socialData);
+          setOriginalSocialLinks(socialData);
+        }
+
+        // Fetch resume
+        const resumeResponse = await fetch("/api/site-settings/resume");
+        if (resumeResponse.ok) {
+          const resumeData = await resumeResponse.json();
+          if (resumeData && resumeData.url) {
+            setCurrentResume(resumeData);
+          }
         }
       } catch (err) {
-        console.error("Error fetching appearance data:", err)
+        console.error("Error fetching appearance data:", err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      setError("Please select an image file")
-      return
+      setError("Please select an image file");
+      return;
     }
 
-    setSelectedFile(file)
-    setError(null)
+    setSelectedFile(file);
+    setError(null);
 
     // Create preview URL
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewUrl(reader.result as string)
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (file.type !== "application/pdf") {
+      setError("Please select a PDF file");
+      return;
     }
-    reader.readAsDataURL(file)
-  }
+
+    setSelectedResume(file);
+    setError(null);
+  };
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setError("Please select an image file")
-      return
+      setError("Please select an image file");
+      return;
     }
 
-    setIsUploading(true)
-    setError(null)
-    setSuccess(null)
+    setIsUploading(true);
+    setError(null);
+    setSuccess(null);
 
     try {
-      const formData = new FormData()
-      formData.append("file", selectedFile)
+      const formData = new FormData();
+      formData.append("file", selectedFile);
 
       const response = await fetch("/api/site-settings/hero-image", {
         method: "POST",
         body: formData,
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to upload image")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload image");
       }
 
-      const data = await response.json()
-      setCurrentHeroImage(data)
-      setSuccess("Hero image updated successfully")
+      const data = await response.json();
+      setCurrentHeroImage(data);
+      setSuccess("Hero image updated successfully");
 
       // Clear the selected file and preview
-      setSelectedFile(null)
-      setPreviewUrl(null)
+      setSelectedFile(null);
+      setPreviewUrl(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ""
+        fileInputRef.current.value = "";
       }
 
       // Refresh the page to show the updated image
-      router.refresh()
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to upload image")
+      setError(err instanceof Error ? err.message : "Failed to upload image");
     } finally {
-      setIsUploading(false)
+      setIsUploading(false);
     }
-  }
+  };
+
+  const handleUploadResume = async () => {
+    if (!selectedResume) {
+      setError("Please select a PDF file");
+      return;
+    }
+
+    setIsUploadingResume(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedResume);
+
+      const response = await fetch("/api/site-settings/resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to upload resume");
+      }
+
+      const data = await response.json();
+      setCurrentResume(data);
+      setSuccess("Resume updated successfully");
+
+      // Clear the selected file
+      setSelectedResume(null);
+      if (resumeInputRef.current) {
+        resumeInputRef.current.value = "";
+      }
+
+      // Refresh the page to show the updated resume
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload resume");
+    } finally {
+      setIsUploadingResume(false);
+    }
+  };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setTextContent((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSocialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setSocialLinks((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSaveText = async () => {
-    setIsSavingText(true)
-    setError(null)
-    setSuccess(null)
+    setIsSavingText(true);
+    setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch("/api/site-settings/text-content", {
@@ -232,28 +321,30 @@ export default function AppearancePage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(textContent),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to save text content")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save text content");
       }
 
-      const updatedData = await response.json()
-      setOriginalTextContent(updatedData)
-      setSuccess("Text content updated successfully")
-      router.refresh()
+      const updatedData = await response.json();
+      setOriginalTextContent(updatedData);
+      setSuccess("Text content updated successfully");
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save text content")
+      setError(
+        err instanceof Error ? err.message : "Failed to save text content"
+      );
     } finally {
-      setIsSavingText(false)
+      setIsSavingText(false);
     }
-  }
+  };
 
   const handleSaveSocial = async () => {
-    setIsSavingSocial(true)
-    setError(null)
-    setSuccess(null)
+    setIsSavingSocial(true);
+    setError(null);
+    setSuccess(null);
 
     try {
       const response = await fetch("/api/site-settings/social-links", {
@@ -262,29 +353,47 @@ export default function AppearancePage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(socialLinks),
-      })
+      });
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to save social links")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save social links");
       }
 
-      const updatedData = await response.json()
-      setOriginalSocialLinks(updatedData)
-      setSuccess("Social links updated successfully")
-      router.refresh()
+      const updatedData = await response.json();
+      setOriginalSocialLinks(updatedData);
+      setSuccess("Social links updated successfully");
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save social links")
+      setError(
+        err instanceof Error ? err.message : "Failed to save social links"
+      );
     } finally {
-      setIsSavingSocial(false)
+      setIsSavingSocial(false);
     }
-  }
+  };
+
+  // Format file size to human-readable format
+  const formatFileSize = (bytes?: number): string => {
+    if (!bytes) return "Unknown size";
+
+    const units = ["B", "KB", "MB", "GB"];
+    let size = bytes;
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+
+    return `${size.toFixed(2)} ${units[unitIndex]}`;
+  };
 
   // Check if text content has changed
-  const hasTextContentChanged = !isEqual(textContent, originalTextContent)
+  const hasTextContentChanged = !isEqual(textContent, originalTextContent);
 
   // Check if social links have changed
-  const hasSocialLinksChanged = !isEqual(socialLinks, originalSocialLinks)
+  const hasSocialLinksChanged = !isEqual(socialLinks, originalSocialLinks);
 
   return (
     <div className="space-y-6">
@@ -292,14 +401,19 @@ export default function AppearancePage() {
       <nav className="flex mb-6 text-sm text-gray-500 dark:text-gray-400">
         <ol className="flex items-center space-x-2">
           <li>
-            <Link href="/admin" className="hover:text-blue-600 dark:hover:text-blue-400 flex items-center">
+            <Link
+              href="/admin"
+              className="hover:text-blue-600 dark:hover:text-blue-400 flex items-center"
+            >
               <Home className="w-4 h-4 mr-1" />
               <span>Dashboard</span>
             </Link>
           </li>
           <li className="flex items-center">
             <ChevronRight className="w-4 h-4 mx-1" />
-            <span className="text-gray-900 dark:text-white font-medium">Appearance</span>
+            <span className="text-gray-900 dark:text-white font-medium">
+              Appearance
+            </span>
           </li>
         </ol>
       </nav>
@@ -321,6 +435,10 @@ export default function AppearancePage() {
             <LinkIcon className="h-4 w-4" />
             Social Links
           </TabsTrigger>
+          <TabsTrigger value="resume" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Resume
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="hero-image" className="mt-0">
@@ -331,7 +449,8 @@ export default function AppearancePage() {
                 Hero Image
               </CardTitle>
               <CardDescription>
-                Update the profile image displayed in the hero section of your portfolio
+                Update the profile image displayed in the hero section of your
+                portfolio
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -349,7 +468,9 @@ export default function AppearancePage() {
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
                     Last updated:{" "}
-                    {currentHeroImage.lastUpdated ? new Date(currentHeroImage.lastUpdated).toLocaleString() : "Unknown"}
+                    {currentHeroImage.lastUpdated
+                      ? new Date(currentHeroImage.lastUpdated).toLocaleString()
+                      : "Unknown"}
                   </p>
                 </div>
               )}
@@ -393,13 +514,20 @@ export default function AppearancePage() {
                 <div className="mt-4">
                   <h3 className="text-sm font-medium mb-2">Preview</h3>
                   <div className="relative w-40 h-40 rounded-full overflow-hidden border-2 border-gray-200">
-                    <Image src={previewUrl || "/placeholder.svg"} alt="Image preview" fill className="object-cover" />
+                    <Image
+                      src={previewUrl || "/placeholder.svg"}
+                      alt="Image preview"
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 </div>
               )}
             </CardContent>
             <CardFooter className="flex justify-between">
-              <p className="text-sm text-gray-500">Recommended: Upload a square image for best results</p>
+              <p className="text-sm text-gray-500">
+                Recommended: Upload a square image for best results
+              </p>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -411,7 +539,9 @@ export default function AppearancePage() {
                 <Type className="h-5 w-5 text-blue-600" />
                 Text Content
               </CardTitle>
-              <CardDescription>Update the text displayed in the header and hero sections</CardDescription>
+              <CardDescription>
+                Update the text displayed in the header and hero sections
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
@@ -424,7 +554,9 @@ export default function AppearancePage() {
                     value={textContent.headerName}
                     onChange={handleTextChange}
                   />
-                  <p className="text-xs text-gray-500">This is displayed in the header when scrolled down</p>
+                  <p className="text-xs text-gray-500">
+                    This is displayed in the header when scrolled down
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -436,7 +568,9 @@ export default function AppearancePage() {
                     value={textContent.heroName}
                     onChange={handleTextChange}
                   />
-                  <p className="text-xs text-gray-500">This is the main name displayed in the hero section</p>
+                  <p className="text-xs text-gray-500">
+                    This is the main name displayed in the hero section
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -448,7 +582,9 @@ export default function AppearancePage() {
                     value={textContent.heroSubtitle}
                     onChange={handleTextChange}
                   />
-                  <p className="text-xs text-gray-500">This is displayed below your name in the hero section</p>
+                  <p className="text-xs text-gray-500">
+                    This is displayed below your name in the hero section
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -481,7 +617,9 @@ export default function AppearancePage() {
                 <LinkIcon className="h-5 w-5 text-blue-600" />
                 Social Links
               </CardTitle>
-              <CardDescription>Update your social media profiles and contact information</CardDescription>
+              <CardDescription>
+                Update your social media profiles and contact information
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
@@ -531,7 +669,9 @@ export default function AppearancePage() {
                     value={socialLinks.email}
                     onChange={handleSocialChange}
                   />
-                  <p className="text-xs text-gray-500">This email will be displayed in the contact section</p>
+                  <p className="text-xs text-gray-500">
+                    This email will be displayed in the contact section
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -556,6 +696,94 @@ export default function AppearancePage() {
             </CardFooter>
           </Card>
         </TabsContent>
+
+        <TabsContent value="resume" className="mt-0">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                Resume
+              </CardTitle>
+              <CardDescription>
+                Upload your resume as a PDF file for visitors to download
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Current resume */}
+              {currentResume && currentResume.url && (
+                <div className="mb-6 p-4 border rounded-md bg-gray-50 dark:bg-gray-800">
+                  <h3 className="text-sm font-medium mb-2">Current Resume</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{currentResume.filename}</p>
+                      <p className="text-sm text-gray-500">
+                        Size: {formatFileSize(currentResume.size)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Last updated:{" "}
+                        {currentResume.lastUpdated
+                          ? new Date(currentResume.lastUpdated).toLocaleString()
+                          : "Unknown"}
+                      </p>
+                    </div>
+                    <a
+                      href={currentResume.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer"
+                    >
+                      <FileUser className="h-4 w-4" />
+                      <span className="hidden md:flex">Preview</span>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Upload new resume */}
+              <div>
+                <Label htmlFor="resume-file" className="block mb-2">
+                  Upload New Resume
+                </Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    id="resume-file"
+                    type="file"
+                    accept="application/pdf"
+                    ref={resumeInputRef}
+                    onChange={handleResumeChange}
+                    className="max-w-md"
+                  />
+                  <Button
+                    onClick={handleUploadResume}
+                    disabled={!selectedResume || isUploadingResume}
+                    className="flex items-center gap-2"
+                  >
+                    {isUploadingResume ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4" />
+                        Upload
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Only PDF files are accepted
+                </p>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              <p className="text-sm text-gray-500">
+                Your resume will be available for visitors to download from your
+                portfolio
+              </p>
+            </CardFooter>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Error message */}
@@ -576,6 +804,5 @@ export default function AppearancePage() {
         </Alert>
       )}
     </div>
-  )
+  );
 }
-

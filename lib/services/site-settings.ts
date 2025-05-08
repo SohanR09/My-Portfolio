@@ -1,58 +1,82 @@
-import { createServerSupabaseClient } from "../supabase/server"
-import { getSupabaseClient } from "../supabase/client"
+import { createServerSupabaseClient } from "../supabase/server";
+import { getSupabaseClient } from "../supabase/client";
 
-export type SiteSettingKey = "hero_image" | "site_info" | "contact_info" | "text_content" | "social_links"
+export type SiteSettingKey =
+  | "hero_image"
+  | "site_info"
+  | "contact_info"
+  | "text_content"
+  | "social_links"
+  | "resume";
 
 export interface SiteSetting<T = any> {
-  key: SiteSettingKey
-  value: T
+  key: SiteSettingKey;
+  value: T;
 }
 
 export interface HeroImageSetting {
-  path: string
-  filename: string
-  url: string // Signed URL with long expiry
-  size?: number
-  lastUpdated?: string
+  path: string;
+  filename: string;
+  url: string; // Signed URL with long expiry
+  size?: number;
+  lastUpdated?: string;
 }
 
 export interface TextContentSetting {
-  headerName: string
-  heroName: string
-  heroSubtitle: string
-  lastUpdated?: string
+  headerName: string;
+  heroName: string;
+  heroSubtitle: string;
+  lastUpdated?: string;
 }
 
 export interface SocialLinksSetting {
-  linkedin: string
-  github: string
-  scholar: string
-  email: string
-  lastUpdated?: string
+  linkedin: string;
+  github: string;
+  scholar: string;
+  email: string;
+  lastUpdated?: string;
+}
+
+export interface ResumeSetting {
+  path: string;
+  filename: string;
+  url: string; // Signed URL with long expiry
+  size?: number;
+  lastUpdated?: string;
+}
+
+export async function getResume(): Promise<ResumeSetting | null> {
+  return getSetting<ResumeSetting>("resume");
 }
 
 // Server-side functions
-export async function getSetting<T = any>(key: SiteSettingKey): Promise<T | null> {
-  const supabase = createServerSupabaseClient()
-  const { data, error } = await supabase.from("site_settings").select("value").eq("key", key).single()
+export async function getSetting<T = any>(
+  key: SiteSettingKey
+): Promise<T | null> {
+  const supabase = createServerSupabaseClient();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", key)
+    .single();
 
   if (error) {
     if (error.code === "PGRST116") {
       // Record not found
-      return null
+      return null;
     }
-    throw error
+    throw error;
   }
 
-  return data?.value as T
+  return data?.value as T;
 }
 
 export async function getHeroImage(): Promise<HeroImageSetting | null> {
-  return getSetting<HeroImageSetting>("hero_image")
+  return getSetting<HeroImageSetting>("hero_image");
 }
 
 export async function getTextContent(): Promise<TextContentSetting | null> {
-  const textContent = await getSetting<TextContentSetting>("text_content")
+  const textContent = await getSetting<TextContentSetting>("text_content");
 
   // Return default values if not set
   if (!textContent) {
@@ -61,14 +85,14 @@ export async function getTextContent(): Promise<TextContentSetting | null> {
       heroName: "Sohan Rathod",
       heroSubtitle: "Full Stack Developer",
       lastUpdated: new Date().toISOString(),
-    }
+    };
   }
 
-  return textContent
+  return textContent;
 }
 
 export async function getSocialLinks(): Promise<SocialLinksSetting | null> {
-  const socialLinks = await getSetting<SocialLinksSetting>("social_links")
+  const socialLinks = await getSetting<SocialLinksSetting>("social_links");
 
   // Return default values if not set
   if (!socialLinks) {
@@ -78,78 +102,103 @@ export async function getSocialLinks(): Promise<SocialLinksSetting | null> {
       scholar: "https://scholar.google.com/citations?user=userid",
       email: "your.email@example.com",
       lastUpdated: new Date().toISOString(),
-    }
+    };
   }
 
-  return socialLinks
+  return socialLinks;
 }
 
 // Client-side functions
-export async function updateSetting<T = any>(key: SiteSettingKey, value: T): Promise<void> {
-  const supabase = getSupabaseClient()
+export async function updateSetting<T = any>(
+  key: SiteSettingKey,
+  value: T
+): Promise<void> {
+  const supabase = getSupabaseClient();
 
   // Check if setting exists
-  const { data: existingData } = await supabase.from("site_settings").select("id").eq("key", key).single()
+  const { data: existingData } = await supabase
+    .from("site_settings")
+    .select("id")
+    .eq("key", key)
+    .single();
 
   if (existingData) {
     // Update existing setting
-    const { error } = await supabase.from("site_settings").update({ value }).eq("key", key)
+    const { error } = await supabase
+      .from("site_settings")
+      .update({ value })
+      .eq("key", key);
 
-    if (error) throw error
+    if (error) throw error;
   } else {
     // Insert new setting
-    const { error } = await supabase.from("site_settings").insert({ key, value })
+    const { error } = await supabase
+      .from("site_settings")
+      .insert({ key, value });
 
-    if (error) throw error
+    if (error) throw error;
   }
 }
 
-export async function updateTextContent(textContent: Partial<TextContentSetting>): Promise<TextContentSetting> {
-  const currentContent = await getTextContent()
-  const updatedContent = {
+export async function updateTextContent(
+  textContent: Partial<TextContentSetting>
+): Promise<TextContentSetting> {
+  const currentContent = await getTextContent();
+  const updatedContent: TextContentSetting = {
+    headerName: currentContent?.headerName || "",
+    heroName: currentContent?.heroName || "",
+    heroSubtitle: currentContent?.heroSubtitle || "",
     ...currentContent,
     ...textContent,
     lastUpdated: new Date().toISOString(),
-  }
+  };
 
-  await updateSetting("text_content", updatedContent)
-  return updatedContent
+  await updateSetting("text_content", updatedContent);
+  return updatedContent;
 }
 
-export async function updateSocialLinks(socialLinks: Partial<SocialLinksSetting>): Promise<SocialLinksSetting> {
-  const currentLinks = await getSocialLinks()
-  const updatedLinks = {
-    ...currentLinks,
-    ...socialLinks,
+export async function updateSocialLinks(
+  socialLinks: Partial<SocialLinksSetting>
+): Promise<SocialLinksSetting> {
+  const currentLinks = await getSocialLinks();
+  const updatedLinks: SocialLinksSetting = {
+    linkedin: socialLinks.linkedin || currentLinks?.linkedin || "",
+    github: socialLinks.github || currentLinks?.github || "",
+    scholar: socialLinks.scholar || currentLinks?.scholar || "",
+    email: socialLinks.email || currentLinks?.email || "",
     lastUpdated: new Date().toISOString(),
-  }
+  };
 
-  await updateSetting("social_links", updatedLinks)
-  return updatedLinks
+  await updateSetting("social_links", updatedLinks);
+  return updatedLinks;
 }
 
 export async function uploadHeroImage(file: File): Promise<HeroImageSetting> {
-  const supabase = getSupabaseClient()
+  const supabase = getSupabaseClient();
 
   // Generate a unique filename
-  const fileExt = file.name.split(".").pop()
-  const fileName = `hero-image-${Date.now()}.${fileExt}`
-  const filePath = `hero/${fileName}`
+  const fileExt = file.name.split(".").pop();
+  const fileName = `hero-image-${Date.now()}.${fileExt}`;
+  const filePath = `hero/${fileName}`;
 
   // Upload the file to Supabase Storage
-  const { error: uploadError } = await supabase.storage.from("portfolio").upload(filePath, file, {
-    cacheControl: "3600",
-    upsert: false,
-  })
+  const { error: uploadError } = await supabase.storage
+    .from("portfolio")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
 
-  if (uploadError) throw uploadError
+  if (uploadError) throw uploadError;
 
   // Generate a signed URL with a long expiry (5 years)
   // 5 years in seconds = 5 * 365 * 24 * 60 * 60 = 157680000
-  const { data: signedUrlData } = await supabase.storage.from("portfolio").createSignedUrl(filePath, 157680000)
+  const { data: signedUrlData } = await supabase.storage
+    .from("portfolio")
+    .createSignedUrl(filePath, 157680000);
 
   if (!signedUrlData?.signedUrl) {
-    throw new Error("Failed to generate signed URL")
+    throw new Error("Failed to generate signed URL");
   }
 
   // Create the hero image setting
@@ -159,11 +208,53 @@ export async function uploadHeroImage(file: File): Promise<HeroImageSetting> {
     url: signedUrlData.signedUrl,
     size: file.size,
     lastUpdated: new Date().toISOString(),
-  }
+  };
 
   // Update the setting in the database
-  await updateSetting("hero_image", heroImageSetting)
+  await updateSetting("hero_image", heroImageSetting);
 
-  return heroImageSetting
+  return heroImageSetting;
 }
 
+export async function uploadResume(file: File): Promise<ResumeSetting> {
+  const supabase = getSupabaseClient();
+
+  // Generate a unique filename
+  const fileExt = file.name.split(".").pop();
+  const fileName = `resume-${Date.now()}.${fileExt}`;
+  const filePath = `Resumes/${fileName}`;
+
+  // Upload the file to Supabase Storage
+  const { error: uploadError } = await supabase.storage
+    .from("portfolio")
+    .upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (uploadError) throw uploadError;
+
+  // Generate a signed URL with a long expiry (5 years)
+  // 5 years in seconds = 5 * 365 * 24 * 60 * 60 = 157680000
+  const { data: signedUrlData } = await supabase.storage
+    .from("portfolio")
+    .createSignedUrl(filePath, 157680000);
+
+  if (!signedUrlData?.signedUrl) {
+    throw new Error("Failed to generate signed URL");
+  }
+
+  // Create the resume setting
+  const resumeSetting: ResumeSetting = {
+    path: filePath,
+    filename: fileName,
+    url: signedUrlData.signedUrl,
+    size: file.size,
+    lastUpdated: new Date().toISOString(),
+  };
+
+  // Update the setting in the database
+  await updateSetting("resume", resumeSetting);
+
+  return resumeSetting;
+}

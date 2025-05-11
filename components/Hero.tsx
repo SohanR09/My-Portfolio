@@ -1,21 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { SITE_CONFIG } from "@/constants";
+import { useIsMobile } from "@/hooks/use-mobile";
+import type { ResumeSetting } from "@/lib/services/site-settings";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import {
-  FaLinkedin,
-  FaGithub,
-  FaGraduationCap,
-  FaFilePdf,
-} from "react-icons/fa";
-import { Button } from "@/components/ui/button";
-import { SITE_CONFIG } from "@/constants";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getSupabaseClient } from "@/lib/supabase/client";
-import type { ResumeSetting } from "@/lib/services/site-settings";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useEffect, useState } from "react";
+import { FaFilePdf } from "react-icons/fa";
+import SocialLink from "./SocialLink";
 
 interface HeroImage {
   path: string;
@@ -41,8 +36,6 @@ export default function Hero() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [latestPosts, setLatestPosts] = useState<any[]>([]);
-  const [socialLinks, setSocialLinks] = useState<any | null>(null);
   const [resume, setResume] = useState<ResumeSetting | null>(null);
 
   const isMobile = useIsMobile();
@@ -82,43 +75,36 @@ export default function Hero() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Fetch latest posts
-        const supabase = getSupabaseClient();
-        const { data: postsData, error: postsError } = await supabase
-          .from("blog_posts")
-          .select("id, title, date")
-          .order("created_at", { ascending: false })
-          .limit(3);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     try {
+  //       // Fetch latest posts
+  //       const supabase = getSupabaseClient();
+  //       const { data: postsData, error: postsError } = await supabase
+  //         .from("blog_posts")
+  //         .select("id, title, date")
+  //         .order("created_at", { ascending: false })
+  //         .limit(3);
 
-        if (postsError) {
-          console.error("Error fetching latest posts:", postsError);
-          setError("Unable to load blog posts at this time");
-          setLatestPosts([]);
-        } else {
-          setLatestPosts(postsData || []);
-          setError(null);
-        }
+  //       if (postsError) {
+  //         console.error("Error fetching latest posts:", postsError);
+  //         setError("Unable to load blog posts at this time");
+  //         setLatestPosts([]);
+  //       } else {
+  //         setLatestPosts(postsData || []);
+  //         setError(null);
+  //       }
+  //     } catch (err) {
+  //       console.error("Failed to fetch data:", err);
+  //       setError("Unable to load data at this time");
+  //       setLatestPosts([]);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
 
-        // Fetch social links
-        const socialResponse = await fetch("/api/site-settings/social-links");
-        if (socialResponse.ok) {
-          const socialData = await socialResponse.json();
-          setSocialLinks(socialData);
-        }
-      } catch (err) {
-        console.error("Failed to fetch data:", err);
-        setError("Unable to load data at this time");
-        setLatestPosts([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -179,60 +165,54 @@ export default function Hero() {
           <div className="md:w-1/2 text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
               {isLoading ? (
-                <Skeleton className="h-16 w-3/4 mx-auto" />
+                <Skeleton className="h-16 w-3/4 mx-auto dark:bg-slate-100" />
               ) : (
                 textContent?.heroName || SITE_CONFIG.name
               )}
             </h1>
             <h2 className="text-2xl md:text-3xl text-blue-300 mb-6">
               {isLoading ? (
-                <Skeleton className="h-10 w-2/4 mx-auto" />
+                <Skeleton className="h-10 w-2/4 mx-auto dark:bg-slate-100" />
               ) : (
                 textContent?.heroSubtitle || SITE_CONFIG.title
               )}
             </h2>
-            {isMobile ? (
+            {isLoading ? (
+              <Skeleton className="h-10 w-40 mx-auto rounded-full dark:bg-slate-100" />
+            ) : (
               <>
-                {resume && (
-                  <Link href={resume?.url as string} target="_blank" download>
-                    <Button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105">
+                {isMobile ? (
+                  <>
+                    {resume && (
+                      <Link
+                        href={resume?.url as string}
+                        target="_blank"
+                        download
+                      >
+                        <Button
+                          id="scale-up-center-alternate"
+                          className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105"
+                        >
+                          <FaFilePdf className="text-lg mr-2" />
+                          View Resume
+                        </Button>
+                      </Link>
+                    )}
+                  </>
+                ) : (
+                  <Link href={"/view-resume"} download>
+                    <Button
+                      id="scale-up-center-alternate"
+                      className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105"
+                    >
                       <FaFilePdf className="text-lg mr-2" />
                       View Resume
                     </Button>
                   </Link>
                 )}
               </>
-            ) : (
-              <Link href={"/view-resume"} download>
-                <Button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105">
-                  <FaFilePdf className="text-lg mr-2" />
-                  View Resume
-                </Button>
-              </Link>
             )}
-            <div className="flex justify-center space-x-4 mt-6">
-              <Link
-                href={socialLinks?.linkedin || SITE_CONFIG.socialLinks.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaLinkedin className="text-2xl hover:text-blue-300 transition-colors text-white" />
-              </Link>
-              <Link
-                href={socialLinks?.github || SITE_CONFIG.socialLinks.github}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGithub className="text-2xl hover:text-blue-300 transition-colors text-white" />
-              </Link>
-              <Link
-                href={socialLinks?.scholar || SITE_CONFIG.socialLinks.scholar}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGraduationCap className="text-2xl hover:text-blue-300 transition-colors text-white" />
-              </Link>
-            </div>
+            <SocialLink />
           </div>
           <div className="md:w-1/2 mb-8 md:mt-0 flex justify-center">
             <div className="relative w-64 h-64 md:w-80 md:h-80">

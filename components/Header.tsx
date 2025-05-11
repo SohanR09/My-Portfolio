@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Menu, X } from "lucide-react"
-import { DarkModeToggle } from "./DarkModeToggle"
-import { NAV_ITEMS, SITE_CONFIG } from "@/constants"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
+import { DarkModeToggle } from "./DarkModeToggle";
+import { NAV_ITEMS, SITE_CONFIG } from "@/constants";
 
 interface TextContent {
-  headerName: string
-  heroName: string
-  heroSubtitle: string
-  lastUpdated?: string
+  headerName: string;
+  heroName: string;
+  heroSubtitle: string;
+  lastUpdated?: string;
 }
 
 /**
@@ -20,55 +20,58 @@ interface TextContent {
  * It includes a mobile-responsive hamburger menu and dark mode toggle.
  */
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [textContent, setTextContent] = useState<TextContent | null>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [textContent, setTextContent] = useState<TextContent | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 0);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchTextContent = async () => {
       try {
-        const response = await fetch("/api/site-settings/text-content")
+        const response = await fetch("/api/site-settings/text-content");
         if (response.ok) {
-          const data = await response.json()
-          setTextContent(data)
+          const data = await response.json();
+          setTextContent(data);
         }
       } catch (err) {
-        console.error("Error fetching text content:", err)
+        console.error("Error fetching text content:", err);
       }
-    }
+    };
 
-    fetchTextContent()
-  }, [])
+    fetchTextContent();
+  }, []);
 
   // Function to handle smooth scrolling to sections
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault()
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault();
 
     // Close mobile menu if open
     if (isOpen) {
-      setIsOpen(false)
+      setIsOpen(false);
     }
 
     // Get the target element
-    const targetId = href.replace("#", "")
-    const targetElement = document.getElementById(targetId)
+    const targetId = href.replace("#", "");
+    const targetElement = document.getElementById(targetId);
 
     if (targetElement) {
       // Scroll to the target element smoothly
-      targetElement.scrollIntoView({ behavior: "smooth" })
+      targetElement.scrollIntoView({ behavior: "smooth" });
 
       // Update URL without page reload
-      window.history.pushState(null, "", href)
+      window.history.pushState(null, "", href);
     }
-  }
+  };
 
   return (
     <header
@@ -82,10 +85,14 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className={`text-2xl font-bold ${isScrolled ? "text-gray-900 dark:text-white" : "text-white"}`}
+            className={`text-2xl font-bold ${
+              isScrolled ? "text-gray-900 dark:text-white" : "text-white"
+            }`}
           >
             {isScrolled && (
-              <span className="hidden md:flex">{textContent?.headerName || SITE_CONFIG.name.split(" ")[0]}</span>
+              <span className="hidden md:flex">
+                {textContent?.headerName || SITE_CONFIG.name.split(" ")[0]}
+              </span>
             )}
           </Link>
           <div className="hidden md:flex space-x-4 justify-center items-center">
@@ -101,12 +108,14 @@ export default function Header() {
                 {item.name}
               </a>
             ))}
-            <DarkModeToggle />
+            <DarkModeToggle isScrolling={isScrolled} />
           </div>
           <div className="flex justify-center items-center gap-2 md:hidden">
-            <DarkModeToggle />
+            <DarkModeToggle isScrolling={isScrolled} />
             <button
-              className={isScrolled ? "text-gray-900 dark:text-white" : "text-white"}
+              className={
+                isScrolled ? "text-gray-900 dark:text-white" : "text-white"
+              }
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X /> : <Menu />}
@@ -131,6 +140,5 @@ export default function Header() {
         </div>
       )}
     </header>
-  )
+  );
 }
-

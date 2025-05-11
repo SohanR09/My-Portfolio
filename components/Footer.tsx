@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { FaLinkedin, FaGithub, FaGraduationCap } from "react-icons/fa"
-import { SITE_CONFIG, FOOTER_LINKS } from "@/constants"
-import { getSupabaseClient } from "@/lib/supabase/client"
+import { FOOTER_LINKS, SITE_CONFIG } from "@/constants";
+import { getSupabaseClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import SocialLink from "./SocialLink";
 
 type BlogPost = {
-  id: string
-  title: string
-  date: string
-}
+  id: string;
+  title: string;
+  date: string;
+};
 
 interface SocialLinks {
-  linkedin: string
-  github: string
-  scholar: string
-  email: string
+  linkedin: string;
+  github: string;
+  scholar: string;
+  email: string;
 }
 
 /**
@@ -24,48 +24,48 @@ interface SocialLinks {
  * to social media profiles and legal pages.
  */
 export default function Footer() {
-  const [latestPosts, setLatestPosts] = useState<BlogPost[]>([])
-  const [socialLinks, setSocialLinks] = useState<SocialLinks | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [latestPosts, setLatestPosts] = useState<BlogPost[]>([]);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
       try {
         // Fetch latest posts
-        const supabase = getSupabaseClient()
+        const supabase = getSupabaseClient();
         const { data: postsData, error: postsError } = await supabase
           .from("blog_posts")
           .select("id, title, date")
           .order("created_at", { ascending: false })
-          .limit(3)
+          .limit(3);
 
         if (postsError) {
-          console.error("Error fetching latest posts:", postsError)
-          setError("Unable to load blog posts at this time")
-          setLatestPosts([])
+          console.error("Error fetching latest posts:", postsError);
+          setError("Unable to load blog posts at this time");
+          setLatestPosts([]);
         } else {
-          setLatestPosts(postsData || [])
-          setError(null)
+          setLatestPosts(postsData as any[]);
+          setError(null);
         }
 
         // Fetch social links
-        const socialResponse = await fetch("/api/site-settings/social-links")
+        const socialResponse = await fetch("/api/site-settings/social-links");
         if (socialResponse.ok) {
-          const socialData = await socialResponse.json()
-          setSocialLinks(socialData)
+          const socialData = await socialResponse.json();
+          setSocialLinks(socialData);
         }
       } catch (err) {
-        console.error("Failed to fetch data:", err)
-        setError("Unable to load data at this time")
-        setLatestPosts([])
+        console.error("Failed to fetch data:", err);
+        setError("Unable to load data at this time");
+        setLatestPosts([]);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   return (
     <footer className="bg-gray-900 text-white py-8">
@@ -74,7 +74,8 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-semibold mb-4">About Me</h3>
             <p className="text-gray-400">
-              Full Stack Developer with expertise in React, Node.js, and cloud technologies.
+              Full Stack Developer with expertise in React, Node.js, and cloud
+              technologies.
             </p>
           </div>
           <div>
@@ -82,7 +83,10 @@ export default function Footer() {
             {isLoading ? (
               <div className="space-y-2">
                 {[...Array(3)].map((_, index) => (
-                  <div key={index} className="h-5 bg-gray-800 rounded w-3/4 animate-pulse"></div>
+                  <div
+                    key={index}
+                    className="h-5 bg-gray-800 rounded w-3/4 animate-pulse"
+                  ></div>
                 ))}
               </div>
             ) : latestPosts.length > 0 ? (
@@ -99,57 +103,44 @@ export default function Footer() {
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-400">{error || "Blog posts will be available soon. Please check back later."}</p>
+              <p className="text-gray-400">
+                {error ||
+                  "Blog posts will be available soon. Please check back later."}
+              </p>
             )}
             <div className="mt-4">
-              <Link href="/blog" className="text-blue-400 hover:text-blue-300 transition-colors">
+              <Link
+                href="/blog"
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
                 View all posts →
               </Link>
             </div>
           </div>
           <div>
             <h3 className="text-xl font-semibold mb-4">Connect</h3>
-            <div className="flex space-x-4">
-              <Link
-                href={socialLinks?.linkedin || SITE_CONFIG.socialLinks.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaLinkedin className="text-2xl hover:text-blue-300 transition-colors" />
-              </Link>
-              <Link
-                href={socialLinks?.github || SITE_CONFIG.socialLinks.github}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGithub className="text-2xl hover:text-blue-300 transition-colors" />
-              </Link>
-              <Link
-                href={socialLinks?.scholar || SITE_CONFIG.socialLinks.scholar}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaGraduationCap className="text-2xl hover:text-blue-300 transition-colors" />
-              </Link>
-            </div>
+            <SocialLink align={"justify-start"} />
           </div>
         </div>
-        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
+        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-center items-center">
           <div className="mb-4 md:mb-0">
             <p>
               &copy; {new Date().getFullYear()} {SITE_CONFIG.copyright}
             </p>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex space-x-4 hidden">
             {FOOTER_LINKS.map((link, index) => (
-              <Link key={index} href={link.href} className="text-gray-400 hover:text-white transition-colors">
-                {link.label}
+              <Link
+                key={index}
+                href={link.href}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                {link.name}
               </Link>
             ))}
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-

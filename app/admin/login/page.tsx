@@ -161,7 +161,7 @@ export default function LoginPage() {
           <Button
             asChild
             variant={"link"}
-            className="text-md text-black drak:text-white"
+            className="text-md text-black dark:text-white"
           >
             <Link href={"/"}>
               <HomeIcon className="w-4 h-4 mr-2" />

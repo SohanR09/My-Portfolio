@@ -1,51 +1,60 @@
-"use client"
+"use client";
 
-import { DarkModeToggle } from "@/components/DarkModeToggle"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useSession } from "@/hooks/use-session"
-import { getSession, signOutClient } from "@/lib/getSission"
-import { BookOpen, Briefcase, Code, FileText, GraduationCap, Home, LogOut, Menu, User } from "lucide-react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { type ReactNode, useEffect, useState } from "react"
+import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useSession } from "@/hooks/use-session";
+import { getSession, signOutClient } from "@/lib/getSission";
+import {
+  BookOpen,
+  Briefcase,
+  Code,
+  FileText,
+  GraduationCap,
+  Home,
+  LogOut,
+  Menu,
+  User,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { type ReactNode, useEffect, useState } from "react";
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  
-  const router = useRouter()
-  const pathname = usePathname()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const [user, setUser] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const signOut = async () => {
-    await signOutClient()
-    setUser(null)
-    setIsLoading(false)
-    router.push("/admin/login")
+    await signOutClient();
+    setUser(null);
+    setIsLoading(false);
+    router.push("/admin/login");
     setTimeout(() => {
-      window.location.reload()
-    }, 500)
-  }
+      window.location.reload();
+    }, 500);
+  };
 
   useEffect(() => {
     const fetchSession = async () => {
-      setIsLoading(true)
-      const { session, user: userSession } = await getSession()
-      setUser(userSession)
-      setIsLoading(false)
-    }
-    fetchSession()
-  }, [])
+      setIsLoading(true);
+      const { session, user: userSession } = await getSession();
+      setUser(userSession);
+      setIsLoading(false);
+    };
+    fetchSession();
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !user && pathname !== "/admin/login") {
-      router.push("/admin/login")
+      router.push("/admin/login");
     }
-  }, [user, isLoading, router, pathname])
+  }, [user, isLoading, router, pathname]);
 
   // Use our custom session hook
-  const { isSessionValid, isSessionExpiringSoon } = useSession()
+  const { isSessionValid, isSessionExpiringSoon } = useSession();
 
   // Check for session expiry and warn user if session is about to expire
   useEffect(() => {
@@ -53,20 +62,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       const checkSessionExpiry = () => {
         if (isSessionExpiringSoon()) {
           // Session is about to expire, show a warning or refresh token
-          console.log("Session is about to expire")
+          console.log("Session is about to expire");
           // You could add a toast notification here to warn the user
         }
-      }
+      };
 
       // Check immediately
-      checkSessionExpiry()
+      checkSessionExpiry();
 
       // Set up interval to check periodically
-      const interval = setInterval(checkSessionExpiry, 60 * 1000) // Check every minute
+      const interval = setInterval(checkSessionExpiry, 60 * 1000); // Check every minute
 
-      return () => clearInterval(interval)
+      return () => clearInterval(interval);
     }
-  }, [user, isSessionExpiringSoon])
+  }, [user, isSessionExpiringSoon]);
 
   if (isLoading) {
     return (
@@ -76,11 +85,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           <p className="text-gray-600 dark:text-gray-300">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!user && pathname !== "/admin/login") {
-    return null
+    return null;
   }
 
   const navItems = [
@@ -91,23 +100,31 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/admin/skills", label: "Skills", icon: FileText },
     { href: "/admin/about", label: "About", icon: User },
     { href: "/admin/blog", label: "Blog", icon: BookOpen },
-  ]
+  ];
 
   const isActive = (path: string) => {
     if (path === "/admin") {
-      return pathname === "/admin"
+      return pathname === "/admin";
     }
-    return pathname?.startsWith(path)
-  }
+    return pathname?.startsWith(path);
+  };
 
   // Navigation component for both desktop and mobile
-  const Navigation = ({ mobile = false, onItemClick = () => {} }: { mobile?: boolean; onItemClick?: () => void }) => (
+  const Navigation = ({
+    mobile = false,
+    onItemClick = () => {},
+  }: {
+    mobile?: boolean;
+    onItemClick?: () => void;
+  }) => (
     <nav className={mobile ? "space-y-1" : "hidden lg:flex space-x-1"}>
       {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className={`${mobile ? "block w-full" : ""} px-3 py-2 rounded-md text-sm font-medium flex items-center ${
+          className={`${
+            mobile ? "block w-full" : ""
+          } px-3 py-2 rounded-md text-sm font-medium flex items-center ${
             isActive(item.href)
               ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200"
               : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -119,7 +136,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </Link>
       ))}
     </nav>
-  )
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col">
@@ -127,7 +144,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <header className="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center">
-              <Link href="/admin" className="text-xl font-bold text-gray-900 dark:text-white mr-6">
+              <Link
+                href="/admin"
+                className="text-xl font-bold text-gray-900 dark:text-white mr-6"
+              >
                 Portfolio Admin
               </Link>
 
@@ -136,8 +156,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex items-center space-x-2 md:space-x-4">
-              <Button variant="link" size="sm" asChild className="flex items-center gap-2">
-                <Link href="/" className="flex justify-center items-center gap-2">
+              <Button
+                variant="link"
+                size="sm"
+                asChild
+                className="flex items-center gap-2"
+              >
+                <Link
+                  href="/"
+                  className="flex justify-center items-center gap-2"
+                >
                   <Home className="w-4 h-4" />
                   <span className="hidden sm:inline">View Site</span>
                 </Link>
@@ -149,10 +177,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 variant="outline"
                 size="sm"
                 onClick={async () => {
-                  await signOut()
-                  router.push("/admin/login")
+                  await signOut();
+                  router.push("/admin/login");
                 }}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-400"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>
@@ -167,14 +195,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[250px] sm:w-[300px]">
                   <div className="py-4">
-                    <h2 className="text-lg font-bold mb-4 px-3">Portfolio Admin</h2>
+                    <h2 className="text-lg font-bold mb-4 px-3">
+                      Portfolio Admin
+                    </h2>
                     <Navigation
                       mobile
                       onItemClick={() => {
                         // Close sheet when item is clicked
-                        const closeButton = document.querySelector("[data-sheet-close]")
+                        const closeButton =
+                          document.querySelector("[data-sheet-close]");
                         if (closeButton instanceof HTMLElement) {
-                          closeButton.click()
+                          closeButton.click();
                         }
                       }}
                     />
@@ -196,6 +227,5 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </footer>
       )}
     </div>
-  )
+  );
 }
-

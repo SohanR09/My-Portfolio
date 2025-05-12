@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { DarkModeToggle } from "./DarkModeToggle";
 import { NAV_ITEMS, SITE_CONFIG } from "@/constants";
+import { motion, useAnimation } from "motion/react";
 
 interface TextContent {
   headerName: string;
@@ -77,7 +78,7 @@ export default function Header() {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-900 dark:text-white"
+          ? "bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-900 dark:text-white shadow-2xl"
           : "bg-transparent text-white"
       }`}
     >
@@ -90,9 +91,25 @@ export default function Header() {
             }`}
           >
             {isScrolled && (
-              <span className="hidden md:flex">
-                {textContent?.headerName || SITE_CONFIG.name.split(" ")[0]}
-              </span>
+              <motion.div
+                animate={{ x: [null, 100, 0] }}
+                whileHover={{
+                  scale: [null, 1.1, 1.4],
+                  transition: {
+                    duration: 0.5,
+                    times: [0, 0.6, 1],
+                    ease: ["easeInOut", "easeOut"],
+                  },
+                }}
+                transition={{
+                  duration: 1,
+                  ease: "easeOut",
+                }}
+              >
+                <span className="hidden md:flex">
+                  {textContent?.headerName || SITE_CONFIG.name.split(" ")[0]}
+                </span>
+              </motion.div>
             )}
           </Link>
           <div className="hidden md:flex space-x-4 justify-center items-center">

@@ -94,6 +94,7 @@ export default function Header() {
             {isScrolled && (
               <HeaderLogo
                 text={textContent?.headerName || SITE_CONFIG.name.split(" ")[0]}
+                className="bg-gradient-to-br from-blue-200 via-blue-800 to-blue-950 bg-clip-text text-transparent"
               />
             )}
           </Link>

@@ -102,7 +102,7 @@ export default function Header() {
                   },
                 }}
                 transition={{
-                  duration: 1,
+                  duration: 2,
                   ease: "easeOut",
                 }}
               >

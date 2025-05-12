@@ -11,6 +11,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaFilePdf } from "react-icons/fa";
 import SocialLink from "./SocialLink";
+import { ProfileImage } from "./ui/profile-image";
+import { DeveloperIntro } from "./ui/developer-intro";
+import { AnimatedButton } from "./ui/animated-button";
+import ViewResumeButton from "./ViewResumeButton";
 
 interface HeroImage {
   path: string;
@@ -109,7 +113,7 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated background */}
-      <div className="absolute inset-0 w-full h-full bg-slate-900 dark:bg-slate-800 z-0">
+      <div className="absolute inset-0 w-full h-full bg-slate-900 z-0">
         <svg
           className="absolute inset-0 w-full h-full"
           xmlns="http://www.w3.org/2000/svg"
@@ -163,90 +167,50 @@ export default function Hero() {
       <div className="container mx-auto px-6 relative z-10">
         <div className="flex flex-col-reverse md:flex-row items-center justify-center">
           <div className="md:w-1/2 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-              {isLoading ? (
-                <Skeleton className="h-16 w-3/4 mx-auto dark:bg-slate-100" />
-              ) : (
-                textContent?.heroName || SITE_CONFIG.name
-              )}
-            </h1>
-            <h2 className="text-2xl md:text-3xl text-blue-300 mb-6">
-              {isLoading ? (
-                <Skeleton className="h-10 w-2/4 mx-auto dark:bg-slate-100" />
-              ) : (
-                textContent?.heroSubtitle || SITE_CONFIG.title
-              )}
-            </h2>
-            {isLoading ? (
-              <Skeleton className="h-10 w-40 mx-auto rounded-full dark:bg-slate-100" />
-            ) : (
-              <>
-                {isMobile ? (
-                  <>
-                    {resume && (
-                      <Link
-                        href={resume?.url as string}
-                        target="_blank"
-                        download
-                      >
-                        <Button
-                          id="scale-up-center-alternate"
-                          className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105"
-                        >
-                          <FaFilePdf className="text-lg mr-2" />
-                          View Resume
-                        </Button>
-                      </Link>
-                    )}
-                  </>
-                ) : (
-                  <Link href={"/view-resume"} download>
-                    <Button
-                      id="scale-up-center-alternate"
-                      className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-full transition duration-300 transform hover:scale-105"
-                    >
-                      <FaFilePdf className="text-lg mr-2" />
-                      View Resume
-                    </Button>
-                  </Link>
-                )}
-              </>
-            )}
+            {/* name & designation name animation */}
+            <DeveloperIntro
+              name={textContent?.heroName || SITE_CONFIG.name}
+              designation={textContent?.heroSubtitle || SITE_CONFIG.title}
+              className="mb-4"
+              isLoading={isLoading}
+            />
+
+            {/* view resume button with animation */}
+            <ViewResumeButton
+              url={resume?.url as string}
+              isLoading={isLoading}
+            />
+            {/* Social links section */}
             <SocialLink />
           </div>
           <div className="md:w-1/2 mb-8 md:mt-0 flex justify-center">
-            <div className="relative w-64 h-64 md:w-80 md:h-80">
-              {/* Profile image or user icon */}
-              <div className="rounded-full border-4 border-blue-300 shadow-lg overflow-hidden bg-gray-200 w-full h-full flex items-center justify-center">
-                {isLoading ? (
-                  <Skeleton className="w-full h-full" />
-                ) : heroImage ? (
-                  <Image
-                    src={heroImage.url || "/placeholder.svg"}
-                    alt={textContent?.heroName || SITE_CONFIG.name}
-                    width={400}
-                    height={400}
-                    className="w-full h-full object-cover"
-                    priority
+            {/* <div className="relative w-64 h-64 md:w-80 md:h-80"> */}
+            {/* Profile image or user icon */}
+            {isLoading ? (
+              <Skeleton className="w-64 h-64 rounded-full dark:bg-slate-100" />
+            ) : heroImage ? (
+              <ProfileImage
+                src={heroImage.url || "/placeholder.svg"}
+                alt={textContent?.heroName || SITE_CONFIG.name}
+                size={400}
+              />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full bg-gradient-to-r from-blue-400 to-blue-600">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-32 h-32 text-white"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
+                    clipRule="evenodd"
                   />
-                ) : (
-                  <div className="flex items-center justify-center w-full h-full bg-gradient-to-r from-blue-400 to-blue-600">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="w-32 h-32 text-white"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                )}
+                </svg>
               </div>
-            </div>
+            )}
+            {/* </div> */}
           </div>
         </div>
       </div>

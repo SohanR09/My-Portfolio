@@ -192,7 +192,7 @@ export default function Hero() {
               <ProfileImage
                 src={heroImage.url || "/placeholder.svg"}
                 alt={textContent?.heroName || SITE_CONFIG.name}
-                size={400}
+                size={isMobile ? 300 : 400}
               />
             ) : (
               <div className="flex items-center justify-center w-full h-full bg-gradient-to-r from-blue-400 to-blue-600">

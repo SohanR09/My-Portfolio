@@ -115,3 +115,7 @@
     transform: scale(1);
   }
 }
+
+.logo-gradient {
+  @apply bg-gradient-to-br from-blue-600 via-blue-700 to-blue-950 dark:from-blue-200 dark:via-blue-400 dark:to-blue-600 bg-clip-text text-transparent;
+}
